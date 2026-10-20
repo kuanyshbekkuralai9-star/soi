@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сөйлемдер еліне саяхат</title>
+<style>
+:root{--ink:#2b2a5c;--sky1:#7fd6ff;--sky2:#c9a8ff;--sky3:#ffd6ec;--card:#fffaf0;--red:#ff6b6b;--blue:#3d8bff;--gold:#ffb703;--green:#2ec4a0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%);background-attachment:fixed;overflow-x:hidden;line-height:1.5}
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.cloud{position:absolute;font-size:56px;opacity:.85;animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(-120px)}to{transform:translateX(110vw)}}
+.star{position:absolute;animation:tw 2.4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.25;transform:scale(.7)}}
+main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:18px 14px 40px}
+.screen{display:none}
+.screen.on{display:block;animation:pop .45s ease}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.hero{text-align:center;padding:34px 8px 10px}
+.hero .castle{font-size:84px;display:inline-block;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-12px)}}
+h1{font-size:clamp(32px,8vw,56px);line-height:1.1;margin:10px 0;color:#fff;text-shadow:0 4px 0 #6a4bd8,0 8px 18px rgba(60,30,140,.35)}
+.sub{font-size:clamp(16px,4vw,20px);max-width:520px;margin:0 auto 22px;background:rgba(255,255,255,.7);border-radius:18px;padding:12px 16px}
+.btn{font:inherit;font-weight:700;font-size:18px;border:0;border-radius:999px;padding:14px 28px;cursor:pointer;color:#fff;background:linear-gradient(180deg,#ff8e53,#ff5e7e);box-shadow:0 5px 0 #c4415c,0 10px 18px rgba(196,65,92,.35);transition:transform .12s;margin:6px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #c4415c}
+.btn.alt{background:linear-gradient(180deg,#5fb0ff,#3d6bff);box-shadow:0 5px 0 #2b47b3,0 10px 18px rgba(43,71,179,.3)}
+.btn.big{font-size:22px;padding:16px 34px;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.btn:focus-visible,.place:focus-visible,.opt:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+h2{font-size:clamp(24px,6vw,34px);color:#fff;text-shadow:0 3px 0 #6a4bd8}
+.chip{background:#fff;border-radius:999px;padding:6px 14px;font-weight:700}
+.map{position:relative;height:600px;border-radius:28px;border:5px solid #fff;overflow:hidden;background:radial-gradient(circle at 50% 45%,#8fdcff,#4fb6f2 75%);box-shadow:0 12px 30px rgba(60,30,140,.3)}
+.map:before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 25% 15%,transparent 0 24px,rgba(255,255,255,.16) 25px 27px)}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.path{fill:none;stroke:#fff;stroke-width:1.1;stroke-dasharray:3 3;animation:dash 6s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-60}}
+.deco{position:absolute;font-size:30px;animation:bob 4s ease-in-out infinite}
+.isl{position:absolute;width:44%;max-width:240px;font:inherit;color:var(--ink);border:0;background:none;cursor:pointer;text-align:center;padding:0;animation:bob 3.6s ease-in-out infinite;transition:transform .15s}
+.land{display:block;position:relative;padding:28px 10px 14px;border-radius:58% 42% 52% 48%/50% 58% 42% 50%;background:radial-gradient(circle at 40% 30%,#8be28a,#3fae5a 75%);box-shadow:0 0 0 9px #f6dfa0,0 0 0 13px rgba(255,255,255,.7),0 12px 0 13px rgba(0,0,0,.12)}
+.isl .em{font-size:42px;display:block;margin-top:-46px;filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
+.isl b{display:block;font-size:16px;line-height:1.2;background:#fff;border-radius:12px;padding:3px 6px;margin-top:4px}
+.isl small{display:block;font-size:12px;margin-top:4px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.isl:hover:not(.lock){transform:scale(1.06)}
+.isl.lock{cursor:not-allowed}
+.isl.lock .land{filter:grayscale(1) brightness(.85)}
+.isl.lock .em{opacity:.5}
+.isl.next .land{animation:glow 1.4s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 9px #fff3a8,0 0 0 22px rgba(255,255,255,.9),0 12px 0 13px rgba(0,0,0,.12)}}
+.isl .tick,.isl .lk{position:absolute;top:-4px;right:-2px;font-size:24px;display:none;z-index:2}
+.isl.done .tick,.isl.lock .lk{display:block}
+.isl.shake{animation:shake .4s}
+.ip0{left:4%;top:5%}.ip1{right:4%;top:21%}.ip2{left:5%;top:39%}.ip3{right:4%;top:57%}.ip4{left:29%;bottom:2%}
+.stu{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 10px;text-align:left}
+.stu svg{width:112px;height:112px;flex:none;animation:bob 2.4s ease-in-out infinite}
+.stu.ask svg{animation:tilt 1.6s ease-in-out infinite}.stu.wow svg{animation:jump .8s ease-in-out infinite}.stu.order svg{animation:nod 1s ease-in-out infinite}
+@keyframes tilt{50%{transform:rotate(-10deg)}}@keyframes jump{50%{transform:translateY(-12px) scale(1.06)}}@keyframes nod{50%{transform:translateY(5px)}}
+.bub{background:#fff;border:3px solid var(--c);border-radius:18px;padding:10px 12px;font-weight:700;font-size:17px;position:relative}
+.bub:before{content:"";position:absolute;left:-11px;top:50%;margin-top:-8px;border:8px solid transparent;border-left:0;border-right-color:var(--c)}
+.bub small{display:block;font-size:13px;font-weight:400;margin-top:4px;opacity:.85}
+.flow{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:10px 0}
+.flow span{flex:1 1 90px;background:#fff;border:3px solid var(--c);border-radius:14px;padding:8px;font-weight:700;font-size:14px}
+.flow i{align-self:center;font-style:normal;font-size:22px;color:var(--c);font-weight:900}
+.tw{overflow-x:auto;margin:10px 0}
+.tw table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:15px}
+.tw th{background:var(--c);color:#fff;padding:7px}.tw td{padding:7px;border-bottom:1px solid #eee;text-align:left}
+.tree{margin:12px 0}.tree .root{display:inline-block;background:var(--c);color:#fff;font-weight:900;border-radius:14px;padding:8px 16px}
+.tree .stem{width:4px;height:14px;background:var(--c);margin:0 auto}
+.tree .kids{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;border-top:4px solid var(--c);padding-top:10px}
+.tree .kd{background:#fff;border:2px dashed var(--c);border-radius:12px;padding:8px;text-align:left;font-size:14px}
+.tree .kd b{display:block;color:var(--c);font-size:15px}.tree .kd em{display:block;margin-top:4px;font-weight:700;font-style:normal}
+.ways{margin:6px 0 0 20px;text-align:left}.ways li{margin:6px 0}
+.tip{text-align:center;margin:14px 0;background:rgba(255,255,255,.75);border-radius:16px;padding:10px 14px}
+.modal{position:fixed;inset:0;background:rgba(40,20,90,.55);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+.modal.on{display:flex}
+.card{background:var(--card);border-radius:26px;max-width:520px;width:100%;max-height:92vh;overflow:auto;padding:22px 18px;border:5px solid #fff;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:pop .35s ease;text-align:center}
+.card .em{font-size:60px}
+.card h3{font-size:26px;margin:4px 0 8px}
+.rule{background:#fff;border-radius:16px;padding:12px;text-align:left;margin:10px 0;border-left:8px solid var(--c,#999)}
+.mark{display:inline-block;font-size:54px;font-weight:900;line-height:1;color:#fff;background:var(--c,#999);border-radius:20px;padding:6px 22px;margin:6px 0;animation:pulse 1.6s infinite}
+.ex{list-style:none;text-align:left;margin:8px 0}
+.ex li{background:#fff;border-radius:14px;padding:10px 14px;margin:7px 0;font-size:18px;font-weight:700;border:2px dashed var(--c,#999)}
+.q{background:var(--card);border:5px solid #fff;border-radius:26px;padding:20px 16px;box-shadow:0 12px 30px rgba(60,30,140,.3)}
+.prog{height:14px;background:#fff;border-radius:99px;overflow:hidden;margin:6px 0 14px}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb703,#ff5e7e);transition:width .4s}
+.qt{font-size:clamp(19px,5vw,24px);font-weight:700;margin-bottom:14px;text-align:center}
+.qs{background:#fff;border-radius:16px;padding:12px;font-size:clamp(20px,5.5vw,26px);font-weight:900;text-align:center;margin-bottom:14px;color:#6a4bd8}
+.opt{display:block;width:100%;font:inherit;font-weight:700;font-size:18px;text-align:left;background:#fff;border:3px solid #d9d3ff;border-radius:16px;padding:13px 14px;margin:9px 0;cursor:pointer;color:var(--ink);transition:transform .1s}
+.opt:hover:not(:disabled){transform:translateX(4px);border-color:#8e6bff}
+.opt.ok{background:#c9f7dc;border-color:var(--green)}
+.opt.bad{background:#ffd3d3;border-color:var(--red);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:52px;margin:8px 0;font-weight:700;text-align:center;font-size:18px}
+.res{text-align:center;background:var(--card);border:5px solid #fff;border-radius:26px;padding:26px 16px;box-shadow:0 12px 30px rgba(60,30,140,.3)}
+.score{font-size:64px;font-weight:900;color:#6a4bd8;line-height:1.1}
+.stars{font-size:38px;margin:6px 0}
+.fall{position:fixed;top:-40px;font-size:28px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+@media(max-width:480px){.map{height:650px}.isl b{font-size:14px}.isl .em{font-size:36px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg" id="bg" aria-hidden="true"></div>
+<main>
+
+<section class="screen on" id="home">
+  <div class="hero">
+    <div class="castle">🏰</div>
+    <h1>Сөйлемдер еліне саяхат</h1>
+    <p class="sub">Сөйлемнің айтылуына байланысты түрлерін ертегі еліне саяхаттап, қызықты түрде үйрен!</p>
+    <button class="btn big" id="startBtn">🚀 Саяхатты бастау</button>
+  </div>
+</section>
+
+<section class="screen" id="mapScr">
+  <div class="bar">
+    <h2>🗺️ Сөйлемдер картасы</h2>
+    <span class="chip" id="seenChip">Аралған арал: 0 / 5</span>
+  </div>
+  <div class="map" id="map">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="path" d="M26 16 C60 8,80 20,74 32 C68 44,30 40,27 50 C24 60,70 58,73 68 C76 78,56 80,50 88"/></svg>
+    <span class="deco" style="left:48%;top:5%">⛵</span>
+    <span class="deco" style="left:47%;top:40%;animation-delay:1s">🐬</span>
+    <span class="deco" style="right:5%;top:3%;animation-delay:1.5s">🐚</span>
+    <span class="deco" style="right:5%;bottom:3%;animation-delay:.5s">🦀</span>
+    <span class="deco" style="left:3%;bottom:3%;animation-delay:2s">🌊</span>
+  </div>
+  <p class="tip" id="tip"></p>
+  <div style="text-align:center">
+    <button class="btn alt" id="toQuiz">📝 Тестті бастау</button>
+    <button class="btn" id="toHome1">🏠 Басты бетке оралу</button>
+  </div>
+</section>
+
+<section class="screen" id="quizScr">
+  <div class="bar">
+    <h2>📝 Білімді тексер</h2>
+    <span class="chip" id="qChip">1 / 5</span>
+  </div>
+  <div class="prog"><i id="prog"></i></div>
+  <div class="q">
+    <div class="qt" id="qt"></div>
+    <div class="qs" id="qs"></div>
+    <div id="opts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div style="text-align:center"><button class="btn alt" id="nextBtn" style="display:none">Келесі сұрақ ➜</button></div>
+  </div>
+</section>
+
+<section class="screen" id="resScr">
+  <div class="res">
+    <div style="font-size:70px" id="resEm">🏆</div>
+    <h2 style="color:#6a4bd8;text-shadow:none">Саяхат аяқталды!</h2>
+    <div class="score" id="score">0 / 5</div>
+    <div class="stars" id="stars"></div>
+    <p id="resMsg" style="font-size:19px;font-weight:700;margin:8px 0 14px"></p>
+    <button class="btn alt" id="retry">🔄 Қайта өту</button>
+    <button class="btn" id="toHome2">🏠 Басты бетке оралу</button>
+  </div>
+</section>
+
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="card" id="mCard">
+    <div class="em" id="mEm"></div>
+    <h3 id="mTitle"></h3>
+    <div class="stu" id="mStu"></div>
+    <div class="rule"><b>📖 Анықтама:</b><br><span id="mRule"></span></div>
+    <div class="flow" id="mFlow"></div><div class="tw" id="mTbl"></div><div class="tree" id="mTree"></div>
+    <div class="rule"><b>🛠️ Жасалу жолдары:</b><ul class="ways" id="mWays"></ul></div>
+    <div>Тыныс белгісі: <span class="mark" id="mMark"></span></div>
+    <div id="mMarkName" style="font-weight:700"></div>
+    <ul class="ex" id="mEx"></ul>
+    <button class="btn" id="mClose">Картаға оралу 🗺️</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+
+/* Мекендер */
+var PLACES=[
+ {em:"🧭",name:"Сөйлем түрлері",sub:"Жалпы анықтама",c:"#3d8bff",mark:". ? !",mn:"Сөйлем соңында қойылатын белгілер",
+  rule:"Сөйлем айтылу мақсатына қарай төрт түрге бөлінеді: хабарлы, сұраулы, лепті және бұйрықты сөйлем. Әр түрі өз ырғағымен айтылады және соңына өз тыныс белгісі қойылады.",
+  ways:["Сөйлемнің түрі айтушының мақсатына байланысты: хабарлау, сұрау, сезімін білдіру немесе бұйыру.","Түрін дауыс ырғағы, сөз тәртібі және арнайы сөздер анықтайды.","Жазуда сөйлемнің түрін соңындағы тыныс белгісінен танимыз."],
+  ex:["Күн шықты. (хабарлы)","Сен қайда барасың? (сұраулы)","Қандай әдемі таң! (лепті)","Тезірек жүр! (бұйрықты)"]},
+ {em:"📜",name:"Хабарлы сөйлем",sub:"Нүкте аралы",c:"#2ec4a0",mark:".",mn:"Нүкте",
+  rule:"Хабарлы сөйлем бір оқиға, құбылыс немесе іс-әрекет туралы хабарлайды. Ол баяндап айтылады, сондықтан соңына нүкте қойылады.",
+  ways:["Баяндауыш көбіне жақ пен шаққа қатысты жалғаумен тұрады: бардық, оқиды.","Сұрау есімдіктері (кім, не, қайда) және сұрау шылаулары (ма, ме, ба, бе, па, пе) қатыспайды.","Дауыс ырғағы бірқалыпты, сөйлемнің соңында бәсеңдейді.","Жазуда соңына нүкте қойылады."],
+  ex:["Күн шығып келеді.","Біз бүгін мектепке бардық.","Алматы — Қазақстанның ең үлкен қаласы."]},
+ {em:"🔮",name:"Сұраулы сөйлем",sub:"Сұрақ аралы",c:"#e8a200",mark:"?",mn:"Сұрау белгісі",
+  rule:"Сұраулы сөйлем бір нәрсені білу үшін сұрау мәнімен айтылады. Оның соңына сұрау белгісі қойылады.",
+  ways:["Сұрау есімдіктері арқылы жасалады: кім, не, қайда, қашан, қандай, неше. Мысалы: «Сен қайда барасың?»","Сұрау шылаулары арқылы жасалады: ма, ме, ба, бе, па, пе. Мысалы: «Сен кітап оқыдың ба?»","Дауыс ырғағы сұрақ сөзінде көтеріледі.","Жазуда соңына сұрау белгісі қойылады."],
+  ex:["Сен қайда барасың?","Бүгін ауа райы қандай?","Кітапты кім оқыды?"]},
+ {em:"🎆",name:"Лепті сөйлем",sub:"Леп аралы",c:"#ff5e7e",mark:"!",mn:"Леп белгісі",
+  rule:"Лепті сөйлем қуаныш, таңданыс, қорқыныш сияқты күшті сезіммен, ерекше леппен айтылады. Соңына леп белгісі қойылады.",
+  ways:["Дауыс ырғағы күшті, көтеріңкі болады.","Сезімді күшейту үшін «қандай», «не деген» сөздері, «ой», «апырай» сияқты одағайлар қолданылады.","Қуаныш, таңданыс, қорқыныш, ашуды білдіреді.","Жазуда соңына леп белгісі қойылады."],
+  ex:["Қандай әдемі табиғат!","Жасасын біздің Отанымыз!","Ой, қандай үлкен шар!"]},
+ {em:"📣",name:"Бұйрықты сөйлем",sub:"Бұйрық аралы",c:"#6a4bd8",mark:"!",mn:"Леп белгісі (жай бұйрықта нүкте де қойылады)",
+  rule:"Бұйрықты сөйлем бұйыруды, өтінішті, тілекті немесе шақыруды білдіреді. Соңына көбіне леп белгісі, жайлы айтылса нүкте қойылады.",
+  ways:["Баяндауыш бұйрық рай тұлғасында тұрады: оқы, жаз, оқыңыз, ойнаңдар, барсын.","Сөйлемде көбіне қаратпа қатысады: «Балалар, ...», «Айгүл, ...».","Дауыс ырғағы мәнді, нығыз болады; өтініш болса жұмсақ айтылады.","Жазуда соңына леп белгісі, жай бұйрықта нүкте қойылады."],
+  ex:["Балалар, сабаққа дайындалыңдар!","Кітапты ашып оқы.","Бізбен бірге ойнаңдар!"]}
+];
+
+var X=[
+ {emo:"hello",say:"Сәлем! Бірге саяхаттайық!",mood:"қуанышты, ашық-жарқын",flow:["🎯 Айтушының мақсаты","🎵 Дауыс ырғағы","✍️ Соңғы тыныс белгісі"],
+  tbl:{h:["Түрі","Мақсаты","Белгі","Мысал"],r:[["Хабарлы","хабарлау",".","Күн шықты."],["Сұраулы","сұрау","?","Сен қайда барасың?"],["Лепті","сезім білдіру","!","Қандай әдемі таң!"],["Бұйрықты","бұйыру, өтіну","! немесе .","Тезірек жүр!"]]}},
+ {emo:"calm",say:"Күн шығып келеді.",mood:"байсалды, баяндайды",flow:["📖 Оқиға, жайт","🎵 Бәсең ырғақ","⚫ Нүкте ( . )"],
+  tbl:{h:["Жасалу жолы","Мысал"],r:[["Жақ жалғаулы баяндауыш","Мен оқимын."],["Шақ тұлғалы баяндауыш","Ол кеше келді."],["Есімнен жасалған баяндауыш","Алматы — үлкен қала."]]}},
+ {emo:"ask",say:"Сен қайда барасың?",mood:"қызығушылық, білгісі келеді",flow:["❓ Білгісі келеді","🎵 Сұрақ сөзінде ырғақ көтеріледі","❔ Сұрау белгісі ( ? )"],
+  tbl:{h:["Сұрау сөзі","Нені сұрайды","Мысал"],r:[["кім?","адамды","Кім келді?"],["не?","затты","Бұл не?"],["қайда?","орынды","Сен қайда жүрсің?"],["қашан?","уақытты","Қашан барасың?"],["қандай?","сапаны","Қандай кітап?"],["неше?","санды","Неше оқушы бар?"]]},
+  tree:{root:"Сұраулы сөйлем түрлері",kids:[
+   ["Ашық сұрақ","Сұрау есімдігімен жасалады, толық жауап керек.","Сен қайда барасың?"],
+   ["Жабық сұрақ","Сұрау шылауымен (ма, ме, ба, бе, па, пе) жасалады, «иә» не «жоқ» деп жауап беріледі.","Сен кітап оқыдың ба?"],
+   ["Күмәнді сұрақ","Күмән, сенімсіздікті білдіреді: «ма екен», «шығар ма» сияқты тіркестер қатысады.","Ол бүгін келер ме екен?"],
+   ["Таңдау сұрағы","Бірнеше нұсқаның бірін таңдатады.","Шай ішесің бе, сүт ішесің бе?"],
+   ["Риторикалық сұрақ","Жауап күтпейді, ойды күшейту үшін айтылады.","Отанды кім сүймейді?"]]}},
+ {emo:"wow",say:"Қандай әдемі табиғат!",mood:"таңданыс, қуаныш",flow:["💥 Күшті сезім","🎵 Көтеріңкі ырғақ","❗ Леп белгісі ( ! )"],
+  tbl:{h:["Сезім","Мысал","Бет-әлпет"],r:[["Қуаныш","Ура, жеңдік!","😀"],["Таңданыс","Қандай әдемі табиғат!","😲"],["Қорқыныш","Ой, жылан!","😨"],["Ашу","Бұл не деген масқара!","😠"]]}},
+ {emo:"order",say:"Балалар, сабаққа дайындалыңдар!",mood:"нық, талап етеді",flow:["📢 Бұйру, өтіну","🎵 Нығыз ырғақ","❗ Леп белгісі не нүкте"],
+  tbl:{h:["Мағынасы","Мысал","Белгі"],r:[["Бұйрық","Үнсіз отырыңдар!","!"],["Өтініш","Маған қалам беріңізші.","."],["Тілек","Аман бол!","!"],["Шақыру","Жүр, бірге ойнайық!","!"]]}}
+];
+X.forEach(function(x,i){for(var k in x)PLACES[i][k]=x[k]});
+
+/* Оқушы */
+function kid(e){
+ var d='<circle cx="40" cy="50" r="3.2" fill="#222"/><circle cx="60" cy="50" r="3.2" fill="#222"/>';
+ var br='<path d="M33 41 Q40 38 46 41 M54 41 Q60 38 67 41" stroke="#4a2c17" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+ var mo='<path d="M40 63 Q50 74 60 63" stroke="#a33" stroke-width="3" fill="none" stroke-linecap="round"/>';
+ var ex='';
+ if(e==="calm"){mo='<path d="M42 66 Q50 70 58 66" stroke="#a33" stroke-width="3" fill="none" stroke-linecap="round"/>'}
+ if(e==="ask"){br='<path d="M33 43 L46 43" stroke="#4a2c17" stroke-width="2.5" stroke-linecap="round"/><path d="M54 40 Q61 33 68 39" stroke="#4a2c17" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  mo='<ellipse cx="50" cy="67" rx="3.5" ry="4.5" fill="#a33"/>';ex='<text x="76" y="26" font-size="28" font-weight="900" fill="#e8a200">?</text>'}
+ if(e==="wow"){d='<circle cx="40" cy="50" r="7" fill="#fff" stroke="#222" stroke-width="2"/><circle cx="60" cy="50" r="7" fill="#fff" stroke="#222" stroke-width="2"/><circle cx="40" cy="50" r="3.5" fill="#222"/><circle cx="60" cy="50" r="3.5" fill="#222"/>';
+  br='<path d="M32 38 Q40 30 47 37 M53 37 Q60 30 68 38" stroke="#4a2c17" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  mo='<ellipse cx="50" cy="68" rx="7" ry="9" fill="#a33"/><ellipse cx="50" cy="73" rx="4" ry="3" fill="#f28"/>';
+  ex='<text x="78" y="28" font-size="28" font-weight="900" fill="#ff5e7e">!</text><text x="4" y="30" font-size="18">✨</text>'}
+ if(e==="order"){br='<path d="M33 40 L46 46 M67 40 L54 46" stroke="#4a2c17" stroke-width="3" stroke-linecap="round"/>';
+  mo='<path d="M42 68 L58 68" stroke="#a33" stroke-width="4" stroke-linecap="round"/>';ex='<text x="72" y="96" font-size="22">☝️</text><text x="2" y="30" font-size="20">📣</text>'}
+ return '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M16 100 C18 84 36 82 50 84 C64 82 82 84 84 100Z" fill="#3d8bff"/><circle cx="20" cy="52" r="5" fill="#ffd9b0"/><circle cx="80" cy="52" r="5" fill="#ffd9b0"/><circle cx="50" cy="50" r="30" fill="#ffd9b0"/><path d="M20 50 C16 12 84 12 80 50 C70 30 30 30 20 50Z" fill="#4a2c17"/>'+d+br+'<circle cx="32" cy="60" r="4" fill="#ff9aa8" opacity=".6"/><circle cx="68" cy="60" r="4" fill="#ff9aa8" opacity=".6"/>'+mo+ex+'</svg>';
+}
+
+/* Тест */
+var QUIZ=[
+ {t:"Мына сөйлем қандай түрге жатады?",s:"Бүгін ауа райы қандай?",o:["Хабарлы сөйлем","Сұраулы сөйлем","Лепті сөйлем","Бұйрықты сөйлем"],a:1,
+  why:"Бұл сөйлем сұрақ қояды, сондықтан сұраулы сөйлем."},
+ {t:"Мына сөйлем қандай түрге жатады?",s:"Қандай керемет мереке!",o:["Хабарлы сөйлем","Сұраулы сөйлем","Лепті сөйлем","Бұйрықты сөйлем"],a:2,
+  why:"Сөйлем таңданысты білдіреді, соңында леп белгісі бар. Бұл лепті сөйлем."},
+ {t:"Мына сөйлем қандай түрге жатады?",s:"Балалар, сабаққа дайындалыңдар!",o:["Хабарлы сөйлем","Сұраулы сөйлем","Лепті сөйлем","Бұйрықты сөйлем"],a:3,
+  why:"Сөйлемде бұйрық бар, сондықтан бұйрықты сөйлем."},
+ {t:"Мына сөйлем қандай түрге жатады?",s:"Қазақстан — біздің Отанымыз.",o:["Хабарлы сөйлем","Сұраулы сөйлем","Лепті сөйлем","Бұйрықты сөйлем"],a:0,
+  why:"Сөйлем бір жайтты хабарлайды, соңында нүкте тұр. Бұл хабарлы сөйлем."},
+ {t:"Сұраулы сөйлемнің соңына қандай тыныс белгісі қойылады?",s:"Сен қайда барасың_",o:["Нүкте (.)","Сұрау белгісі (?)","Үтір (,)","Леп белгісі (!)"],a:1,
+  why:"Сұраулы сөйлемнің соңына сұрау белгісі (?) қойылады."}
+];
+
+/* Фон: бұлттар мен жұлдыздар */
+(function(){
+ var bg=$("bg"),i,e;
+ for(i=0;i<5;i++){e=document.createElement("span");e.className="cloud";e.textContent="☁️";
+  e.style.top=(4+i*17)+"%";e.style.animationDuration=(40+i*13)+"s";e.style.animationDelay=(-i*9)+"s";bg.appendChild(e)}
+ for(i=0;i<14;i++){e=document.createElement("span");e.className="star";e.textContent=i%3?"✨":"⭐";
+  e.style.left=(Math.random()*96)+"%";e.style.top=(Math.random()*90)+"%";e.style.fontSize=(12+Math.random()*14)+"px";
+  e.style.animationDelay=(Math.random()*2.4)+"s";bg.appendChild(e)}
+})();
+
+function show(id){
+ var s=document.querySelectorAll(".screen");
+ for(var i=0;i<s.length;i++)s[i].classList.remove("on");
+ $(id).classList.add("on");
+ window.scrollTo(0,0);
+}
+
+/* Карта */
+var done=[false,false,false,false,false],isl=[],cur=-1;
+PLACES.forEach(function(p,k){
+ var b=document.createElement("button");b.type="button";b.className="isl ip"+k;
+ b.innerHTML='<span class="land"><span class="tick">✅</span><span class="lk">🔒</span><span class="em">'+p.em+'</span><b>'+p.name+'</b><small>'+p.sub+'</small></span>';
+ b.addEventListener("click",function(){clickIsl(k)});
+ $("map").appendChild(b);isl.push(b);
+});
+function nextIdx(){for(var i=0;i<done.length;i++)if(!done[i])return i;return -1}
+function refresh(){
+ var n=nextIdx(),c=0;
+ isl.forEach(function(b,k){
+  b.classList.toggle("done",done[k]);
+  b.classList.toggle("next",k===n);
+  b.classList.toggle("lock",!done[k]&&k!==n);
+  if(done[k])c++;
+ });
+ $("seenChip").textContent="Аралған арал: "+c+" / "+PLACES.length;
+ $("tip").textContent=n<0?"Барлық аралдан өттің! Енді тестке өтуге болады.":"Жарқырап тұрған аралға бас: "+(n+1)+"-арал ашық. Оны оқып болғасын келесісі ашылады.";
+ $("toQuiz").style.opacity=n<0?1:.55;
+}
+function clickIsl(k){
+ var b=isl[k];
+ if(b.classList.contains("lock")){b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");$("tip").textContent="🔒 Алдымен алдыңғы аралды аш!";return}
+ openPlace(k);
+}
+function openPlace(k){
+ var p=PLACES[k];cur=k;
+ $("mEm").textContent=p.em;$("mTitle").textContent=p.name;$("mRule").textContent=p.rule;
+ $("mMark").textContent=p.mark;$("mMarkName").textContent=p.mn;
+ $("mCard").style.setProperty("--c",p.c);
+ var st=$("mStu");st.className="stu "+p.emo;
+ st.innerHTML=kid(p.emo)+'<div class="bub">'+p.say+'<small>Көңіл күйі: '+p.mood+'</small></div>';
+ $("mFlow").innerHTML=p.flow.map(function(t,i){return (i?"<i>➜</i>":"")+"<span>"+t+"</span>"}).join("");
+ $("mTbl").innerHTML="<table><tr>"+p.tbl.h.map(function(h){return "<th>"+h+"</th>"}).join("")+"</tr>"+p.tbl.r.map(function(r){return "<tr>"+r.map(function(c){return "<td>"+c+"</td>"}).join("")+"</tr>"}).join("")+"</table>";
+ $("mTree").innerHTML=p.tree?'<div class="root">'+p.tree.root+'</div><div class="stem"></div><div class="kids">'+p.tree.kids.map(function(q){return '<div class="kd"><b>'+q[0]+'</b>'+q[1]+'<em>'+q[2]+'</em></div>'}).join("")+'</div>':"";
+ var ul=$("mEx");ul.innerHTML="";
+ p.ex.forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});
+ var w=$("mWays");w.innerHTML="";
+ p.ways.forEach(function(x){var li=document.createElement("li");li.textContent=x;w.appendChild(li)});
+ $("mClose").textContent=k<PLACES.length-1?"Келесі аралды ашу 🏝️":"Картаға оралу 🗺️";
+ $("modal").classList.add("on");
+ $("mCard").scrollTop=0;$("mClose").focus();
+}
+function closeModal(){
+ if($("modal").classList.contains("on")&&cur>=0){done[cur]=true;cur=-1;refresh()}
+ $("modal").classList.remove("on");
+}
+$("mClose").addEventListener("click",closeModal);
+$("modal").addEventListener("click",function(e){if(e.target===$("modal"))closeModal()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal()});
+
+/* Тест */
+var qi=0,score=0,locked=false;
+function startQuiz(){qi=0;score=0;show("quizScr");renderQ()}
+function renderQ(){
+ var q=QUIZ[qi];locked=false;
+ $("qChip").textContent=(qi+1)+" / "+QUIZ.length;
+ $("prog").style.width=(qi/QUIZ.length*100)+"%";
+ $("qt").textContent=q.t;$("qs").textContent=q.s;
+ $("fb").textContent="";$("nextBtn").style.display="none";
+ $("nextBtn").textContent=qi===QUIZ.length-1?"Нәтижені көру 🏆":"Келесі сұрақ ➜";
+ var box=$("opts");box.innerHTML="";
+ q.o.forEach(function(txt,i){
+  var b=document.createElement("button");b.className="opt";b.type="button";b.textContent=txt;
+  b.addEventListener("click",function(){answer(i,b)});
+  box.appendChild(b);
+ });
+}
+function answer(i,b){
+ if(locked)return;locked=true;
+ var q=QUIZ[qi],all=$("opts").children,fb=$("fb");
+ for(var j=0;j<all.length;j++)all[j].disabled=true;
+ if(i===q.a){score++;b.classList.add("ok");fb.style.color="#12805f";fb.textContent="✅ Дұрыс! Тамаша! "+q.why}
+ else{b.classList.add("bad");all[q.a].classList.add("ok");fb.style.color="#c0392b";fb.textContent="❌ Қате. Дұрыс жауап: "+q.o[q.a]+". "+q.why}
+ $("nextBtn").style.display="inline-block";
+}
+$("nextBtn").addEventListener("click",function(){
+ qi++;if(qi<QUIZ.length)renderQ();else finish();
+});
+function finish(){
+ show("resScr");
+ var n=QUIZ.length;
+ $("score").textContent=score+" / "+n;
+ var st="";for(var i=0;i<n;i++)st+=i<score?"⭐":"☆";
+ $("stars").textContent=st;
+ var m,em;
+ if(score===n){m="Керемет! Сен сөйлемдер елінің нағыз білгірісің!";em="🏆"}
+ else if(score>=3){m="Жарайсың! Ережені тағы бір қарап шықсаң, өте жақсы болады.";em="🎉"}
+ else{m="Үйренуге әлі уақыт бар. Картаға оралып, ережелерді қайталап көр!";em="💪"}
+ $("resEm").textContent=em;$("resMsg").textContent=m;
+ if(score>=3)confetti();
+}
+function confetti(){
+ var set=["🎉","⭐","✨","🎈","🌟"];
+ for(var i=0;i<26;i++){
+  var e=document.createElement("span");e.className="fall";e.textContent=set[i%set.length];
+  e.style.left=(Math.random()*96)+"vw";
+  e.style.animationDuration=(2.5+Math.random()*2.5)+"s";
+  e.style.animationDelay=(Math.random()*1.2)+"s";
+  document.body.appendChild(e);
+  (function(x){setTimeout(function(){if(x.parentNode)x.parentNode.removeChild(x)},6500)})(e);
+ }
+}
+
+/* Батырмалар */
+function reset(){for(var i=0;i<done.length;i++)done[i]=false;refresh()}
+$("startBtn").addEventListener("click",function(){show("mapScr")});
+$("toQuiz").addEventListener("click",function(){
+ if(nextIdx()>=0){$("tip").textContent="🔒 Тестке өту үшін барлық 5 аралды ашып шық!";return}
+ startQuiz();
+});
+$("toHome1").addEventListener("click",function(){reset();show("home")});
+$("toHome2").addEventListener("click",function(){reset();show("home")});
+$("retry").addEventListener("click",function(){reset();show("mapScr")});
+refresh();
+})();
+</script>
+</body>
+</html>
